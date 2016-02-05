@@ -1,6 +1,5 @@
 package cc.sferalabs.sfera.drivers.hue;
 
-import com.philips.lighting.hue.sdk.utilities.PHUtilities;
 import com.philips.lighting.model.PHLight;
 import com.philips.lighting.model.PHLightState;
 
@@ -13,7 +12,7 @@ public class Color {
 	private final Integer saturation;
 	private final Integer hue;
 	private final Integer temperature;
-	private final String description;
+	private final String rgb;
 
 	/**
 	 * 
@@ -29,27 +28,40 @@ public class Color {
 		this.saturation = state.getSaturation();
 		this.hue = state.getHue();
 		this.temperature = state.getCt();
-		StringBuilder sb = new StringBuilder();
-		sb.append("{\"x\":").append(x);
-		sb.append(",\"y\":").append(y);
-		sb.append(",\"saturation\":").append(saturation);
-		sb.append(",\"hue\":").append(hue);
-		sb.append(",\"temperature\":").append(temperature);
-		sb.append('}');
-		this.description = sb.toString();
+		this.rgb = computeRgb(state);
 	}
 
 	/**
-	 * 
+	 * @param state
 	 * @return
 	 */
-	public PHLight getLight() {
-		return light;
+	private String computeRgb(PHLightState state) {
+		float h = state.getHue() / 65535f;
+		float s = state.getSaturation() / 254f;
+		float br = state.getBrightness() / 254f;
+		int rgb = java.awt.Color.HSBtoRGB(h, s, br);
+		int r = ((rgb >>> 16) & 0xFF);
+		int g = ((rgb >>> 8) & 0xFF);
+		int b = (rgb & 0xFF);
+		StringBuilder ret = new StringBuilder("#");
+		if (r < 0x10) {
+			ret.append(0);
+		}
+		ret.append(Integer.toString(r, 16));
+		if (g < 0x10) {
+			ret.append(0);
+		}
+		ret.append(Integer.toString(g, 16));
+		if (b < 0x10) {
+			ret.append(0);
+		}
+		ret.append(Integer.toString(b, 16));
+		return ret.toString();
 	}
 
 	@Override
 	public String toString() {
-		return description;
+		return rgb;
 	}
 
 	@Override
@@ -101,6 +113,13 @@ public class Color {
 	}
 
 	/**
+	 * @return the RGB value
+	 */
+	public String getRgb() {
+		return rgb;
+	}
+
+	/**
 	 * 
 	 * @param value
 	 * @return
@@ -117,23 +136,12 @@ public class Color {
 	 * @param value
 	 * @return
 	 */
-	public boolean setRgb(int[] value) {
-		float xy[] = PHUtilities.calculateXYFromRGB(value[0], value[1],
-				value[2], light.getModelNumber());
-		return setXy(xy);
-	}
-	
-	/**
-	 * 
-	 * @param value
-	 * @return
-	 */
 	public boolean setHue(int value) {
 		PHLightState lightState = new PHLightState();
 		lightState.setHue(value);
 		return driver.sendStateUpdate(light.getIdentifier(), lightState);
 	}
-	
+
 	/**
 	 * 
 	 * @param value
@@ -144,7 +152,7 @@ public class Color {
 		lightState.setSaturation(value);
 		return driver.sendStateUpdate(light.getIdentifier(), lightState);
 	}
-	
+
 	/**
 	 * 
 	 * @param value
@@ -155,5 +163,41 @@ public class Color {
 		lightState.setCt(value);
 		return driver.sendStateUpdate(light.getIdentifier(), lightState);
 	}
-	
+
+	/**
+	 * @param rgb
+	 * @return
+	 */
+	public boolean setRgb(int[] rgb) {
+		float[] hsb = java.awt.Color.RGBtoHSB(rgb[0], rgb[1], rgb[2], null);
+		return setHsb(new int[] { Math.round(hsb[0] * 65535), Math.round(hsb[1] * 254),
+				Math.round(hsb[2] * 254) });
+	}
+
+	/**
+	 * @param rgb
+	 * @return
+	 */
+	public boolean setRgb(String rgb) {
+		if (rgb.startsWith("#")) {
+			rgb = rgb.substring(1);
+		}
+		int r = Integer.parseInt(rgb.substring(0, 2), 16);
+		int g = Integer.parseInt(rgb.substring(2, 4), 16);
+		int b = Integer.parseInt(rgb.substring(4, 6), 16);
+		return setRgb(new int[] { r, g, b });
+	}
+
+	/**
+	 * @param hsb
+	 * @return
+	 */
+	public boolean setHsb(int[] hsb) {
+		PHLightState lightState = new PHLightState();
+		lightState.setHue(hsb[0]);
+		lightState.setSaturation(hsb[1]);
+		lightState.setBrightness(hsb[2]);
+		return driver.sendStateUpdate(light.getIdentifier(), lightState);
+	}
+
 }

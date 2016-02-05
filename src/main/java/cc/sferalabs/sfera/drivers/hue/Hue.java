@@ -5,9 +5,10 @@ import java.util.Map;
 
 import cc.sferalabs.sfera.core.Configuration;
 import cc.sferalabs.sfera.drivers.Driver;
-import cc.sferalabs.sfera.drivers.hue.events.AuthenticationEvent;
+import cc.sferalabs.sfera.drivers.hue.events.HueAuthenticationEvent;
 import cc.sferalabs.sfera.drivers.hue.events.HueBrightnessEvent;
 import cc.sferalabs.sfera.drivers.hue.events.HueColorEvent;
+import cc.sferalabs.sfera.drivers.hue.events.HueConnectedEvent;
 import cc.sferalabs.sfera.drivers.hue.events.HueOnEvent;
 import cc.sferalabs.sfera.drivers.hue.events.HueReachableEvent;
 import cc.sferalabs.sfera.events.Bus;
@@ -29,7 +30,7 @@ public class Hue extends Driver {
 	private BridgeListener listener;
 	private PHBridge bridge;
 	private PHHueSDK phHueSDK;
-	
+
 	private boolean updateResult;
 
 	public Hue(String id) {
@@ -37,8 +38,7 @@ public class Hue extends Driver {
 	}
 
 	@Override
-	protected boolean onInit(Configuration configuration)
-			throws InterruptedException {
+	protected boolean onInit(Configuration configuration) throws InterruptedException {
 		phHueSDK = PHHueSDK.create();
 		phHueSDK.setAppName("cc.sferalabs.sfera.drivers.hue");
 		phHueSDK.setDeviceName("Sfera");
@@ -50,13 +50,12 @@ public class Hue extends Driver {
 				.getSDKService(PHHueSDK.SEARCH_BRIDGE);
 		sm.search(true, true);
 
-		long end = System.currentTimeMillis() + SEARCH_TIMEOUT
-				+ AUTHENTICATION_TIMEOUT + 5000;
+		long end = System.currentTimeMillis() + SEARCH_TIMEOUT + AUTHENTICATION_TIMEOUT + 5000;
 		while (bridge == null && System.currentTimeMillis() < end) {
 			Thread.sleep(100);
 		}
 
-		Bus.postIfChanged(new AuthenticationEvent(this, false));
+		Bus.postIfChanged(new HueAuthenticationEvent(this, false));
 
 		if (bridge == null) {
 			log.error("Bridge not found");
@@ -66,11 +65,13 @@ public class Hue extends Driver {
 		log.info("Connected to bridge");
 
 		for (PHLight light : bridge.getResourceCache().getAllLights()) {
-			log.debug("Found light {} {} {}", light.getIdentifier(), light
-					.getLightType().toString(), light.getName());
+			log.debug("Found light {} {} {}", light.getIdentifier(),
+					light.getLightType().toString(), light.getName());
 		}
 
-		getLigthsState();
+		updateLigthsState();
+
+		Bus.postIfChanged(new HueConnectedEvent(this, true));
 
 		return true;
 	}
@@ -79,16 +80,14 @@ public class Hue extends Driver {
 	 * 
 	 * @param light
 	 */
-	void getLigthsState() {
+	void updateLigthsState() {
 		for (PHLight light : bridge.getResourceCache().getAllLights()) {
 			PHLightState state = light.getLastKnownLightState();
 			Bus.postIfChanged(new HueOnEvent(this, light, state.isOn()));
-			Bus.postIfChanged(new HueReachableEvent(this, light, state
-					.isReachable()));
-			Bus.postIfChanged(new HueBrightnessEvent(this, light, state
-					.getBrightness()));
+			Bus.postIfChanged(new HueReachableEvent(this, light, state.isReachable()));
+			Bus.postIfChanged(new HueBrightnessEvent(this, light, state.getBrightness()));
 			Color color = new Color(this, light, state);
-			Bus.postIfChanged(new HueColorEvent(this, color));
+			Bus.postIfChanged(new HueColorEvent(this, light, color));
 		}
 	}
 
@@ -100,6 +99,7 @@ public class Hue extends Driver {
 
 	@Override
 	protected void onQuit() {
+		Bus.postIfChanged(new HueConnectedEvent(this, false));
 		bridge = null;
 		if (phHueSDK != null) {
 			phHueSDK.disableAllHeartbeat();
@@ -135,7 +135,7 @@ public class Hue extends Driver {
 		}
 		return new HueLight(this, bridge, id);
 	}
-	
+
 	/**
 	 * 
 	 * @param lightId

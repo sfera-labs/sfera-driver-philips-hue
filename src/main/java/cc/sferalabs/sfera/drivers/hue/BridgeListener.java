@@ -6,7 +6,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import cc.sferalabs.sfera.core.Configuration;
-import cc.sferalabs.sfera.drivers.hue.events.AuthenticationEvent;
+import cc.sferalabs.sfera.drivers.hue.events.HueAuthenticationEvent;
 import cc.sferalabs.sfera.events.Bus;
 
 import com.philips.lighting.hue.sdk.PHAccessPoint;
@@ -79,18 +79,15 @@ public class BridgeListener implements PHSDKListener {
 				accessPoint.getMacAddress(), accessPoint.getIpAddress(),
 				accessPoint.getUsername());
 		phHueSDK.startPushlinkAuthentication(accessPoint);
-		Bus.postIfChanged(new AuthenticationEvent(driver, true));
+		Bus.postIfChanged(new HueAuthenticationEvent(driver, true));
 	}
 
 	@Override
 	public void onCacheUpdated(List<Integer> cacheNotificationsList,
 			PHBridge bridge) {
 		logger.debug("Cache Update");
-		// Here you receive notifications that the BridgeResource Cache was
-		// updated. Use the PHMessageType to
-		// check which cache was updated, e.g.
 		if (cacheNotificationsList.contains(PHMessageType.LIGHTS_CACHE_UPDATED)) {
-			driver.getLigthsState();
+			driver.updateLigthsState();
 		}
 	}
 
@@ -122,7 +119,7 @@ public class BridgeListener implements PHSDKListener {
 	public void onError(int code, final String message) {
 		logger.warn("Listner error: {} - {}", code, message);
 		if (code == PHMessageType.PUSHLINK_AUTHENTICATION_FAILED) {
-			Bus.postIfChanged(new AuthenticationEvent(driver, false));
+			Bus.postIfChanged(new HueAuthenticationEvent(driver, false));
 		}
 	}
 
