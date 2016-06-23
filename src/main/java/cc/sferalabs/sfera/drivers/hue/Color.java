@@ -3,6 +3,14 @@ package cc.sferalabs.sfera.drivers.hue;
 import com.philips.lighting.model.PHLight;
 import com.philips.lighting.model.PHLightState;
 
+/**
+ * Class representing a light color.
+ * 
+ * @author Giampiero Baggiani
+ *
+ * @version 1.0.0
+ *
+ */
 public class Color {
 
 	private final Hue driver;
@@ -20,7 +28,7 @@ public class Color {
 	 * @param light
 	 * @param state
 	 */
-	public Color(Hue driver, PHLight light, PHLightState state) {
+	Color(Hue driver, PHLight light, PHLightState state) {
 		this.driver = driver;
 		this.light = light;
 		this.x = state.getX();
@@ -120,9 +128,15 @@ public class Color {
 	}
 
 	/**
+	 * Sends an update request to set the x and y values of the color to the
+	 * specified value.
 	 * 
 	 * @param value
-	 * @return
+	 *            array of floating values where the one at index 0 represents
+	 *            the x value and the one at index 1 represents the y value to
+	 *            set
+	 * @return {@code true} if the request is successful, {@code false}
+	 *         otherwise
 	 */
 	public boolean setXy(float[] value) {
 		PHLightState lightState = new PHLightState();
@@ -132,9 +146,13 @@ public class Color {
 	}
 
 	/**
+	 * Sends an update request to set the hue of the color to the specified
+	 * value.
 	 * 
 	 * @param value
-	 * @return
+	 *            hue value to set (0-65535)
+	 * @return {@code true} if the request is successful, {@code false}
+	 *         otherwise
 	 */
 	public boolean setHue(int value) {
 		PHLightState lightState = new PHLightState();
@@ -143,9 +161,13 @@ public class Color {
 	}
 
 	/**
+	 * Sends an update request to set the saturation of the color to the
+	 * specified value.
 	 * 
 	 * @param value
-	 * @return
+	 *            saturation value to set (0-254)
+	 * @return {@code true} if the request is successful, {@code false}
+	 *         otherwise
 	 */
 	public boolean setSaturation(int value) {
 		PHLightState lightState = new PHLightState();
@@ -154,9 +176,13 @@ public class Color {
 	}
 
 	/**
+	 * Sends an update request to set the temperature of the color to the
+	 * specified value.
 	 * 
 	 * @param value
-	 * @return
+	 *            temperature value to set
+	 * @return {@code true} if the request is successful, {@code false}
+	 *         otherwise
 	 */
 	public boolean setTemperature(int value) {
 		PHLightState lightState = new PHLightState();
@@ -165,8 +191,16 @@ public class Color {
 	}
 
 	/**
+	 * Sends an update request to set the RGB value of the color to the
+	 * specified value.
+	 * 
 	 * @param rgb
-	 * @return
+	 *            array of int values where the one at index 0 represents the
+	 *            red-component value, the one at index 1 represents the
+	 *            green-component value and the one at index 2 represents the
+	 *            blue-component value to set
+	 * @return {@code true} if the request is successful, {@code false}
+	 *         otherwise
 	 */
 	public boolean setRgb(int[] rgb) {
 		float[] hsb = java.awt.Color.RGBtoHSB(rgb[0], rgb[1], rgb[2], null);
@@ -175,8 +209,14 @@ public class Color {
 	}
 
 	/**
+	 * Sends an update request to set the RGB value of the color to the
+	 * specified value.
+	 * 
 	 * @param rgb
-	 * @return
+	 *            String representation of the hexadecimal RGB value to set
+	 *            (e.g. "#FF11BB" or "FF11BB")
+	 * @return {@code true} if the request is successful, {@code false}
+	 *         otherwise
 	 */
 	public boolean setRgb(String rgb) {
 		if (rgb.startsWith("#")) {
@@ -189,8 +229,15 @@ public class Color {
 	}
 
 	/**
+	 * Sends an update request to set the hue, saturation and brightness values
+	 * of the color to the specified values.
+	 * 
 	 * @param hsb
-	 * @return
+	 *            array of int values where the one at index 0 represents the
+	 *            hue value, the one at index 1 represents the saturation value
+	 *            and the one at index 2 represents the brightness value to set
+	 * @return {@code true} if the request is successful, {@code false}
+	 *         otherwise
 	 */
 	public boolean setHsb(int[] hsb) {
 		PHLightState lightState = new PHLightState();

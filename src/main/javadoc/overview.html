@@ -1,0 +1,21 @@
+<HTML>
+	<body>
+		This driver implements the integration with the Philips Hue wireless bulbs through their bridge device connected to the local network.
+		<p>
+		<h3>Setup</h3>
+		The first time the driver connects to the Hue bridge, an authentication procedure is required.
+		<p>
+		Configure the driver and let it start. After few seconds an event with ID 'authentication' and value 'true' will trigger. 
+		At this point you have 30 seconds to manually press the button on the Hue bridge. From now on, the driver is authenticated and this procedure will be no longer needed.
+		<p>
+		N.B. the authentication is linked to the ID assigned to the Hue driver instance. Changing the ID will require performing the authentication procedure again.
+
+		@author Giampiero Baggiani
+		@sfera.config type
+			cc.sferalabs.sfera.drivers.hue.Hue
+		@sfera.config mac
+			if specified, the driver will connect to the bridge device with the corresponding MAC address. If not specified this driver will connect to the first bridge found on the local network
+		@sfera.config interval
+			the interval in seconds between state requests
+	</body>
+</HTML>

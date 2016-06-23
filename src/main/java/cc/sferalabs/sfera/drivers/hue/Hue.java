@@ -3,16 +3,6 @@ package cc.sferalabs.sfera.drivers.hue;
 import java.util.List;
 import java.util.Map;
 
-import cc.sferalabs.sfera.core.Configuration;
-import cc.sferalabs.sfera.drivers.Driver;
-import cc.sferalabs.sfera.drivers.hue.events.HueAuthenticationEvent;
-import cc.sferalabs.sfera.drivers.hue.events.HueBrightnessEvent;
-import cc.sferalabs.sfera.drivers.hue.events.HueColorEvent;
-import cc.sferalabs.sfera.drivers.hue.events.HueConnectedEvent;
-import cc.sferalabs.sfera.drivers.hue.events.HueOnEvent;
-import cc.sferalabs.sfera.drivers.hue.events.HueReachableEvent;
-import cc.sferalabs.sfera.events.Bus;
-
 import com.philips.lighting.hue.listener.PHLightListener;
 import com.philips.lighting.hue.sdk.PHBridgeSearchManager;
 import com.philips.lighting.hue.sdk.PHHueSDK;
@@ -21,6 +11,15 @@ import com.philips.lighting.model.PHBridgeResource;
 import com.philips.lighting.model.PHHueError;
 import com.philips.lighting.model.PHLight;
 import com.philips.lighting.model.PHLightState;
+
+import cc.sferalabs.sfera.core.Configuration;
+import cc.sferalabs.sfera.drivers.Driver;
+import cc.sferalabs.sfera.drivers.hue.events.HueAuthenticationEvent;
+import cc.sferalabs.sfera.drivers.hue.events.HueBrightnessEvent;
+import cc.sferalabs.sfera.drivers.hue.events.HueColorEvent;
+import cc.sferalabs.sfera.drivers.hue.events.HueOnEvent;
+import cc.sferalabs.sfera.drivers.hue.events.HueReachableEvent;
+import cc.sferalabs.sfera.events.Bus;
 
 public class Hue extends Driver {
 
@@ -71,8 +70,6 @@ public class Hue extends Driver {
 
 		updateLigthsState();
 
-		Bus.postIfChanged(new HueConnectedEvent(this, true));
-
 		return true;
 	}
 
@@ -99,7 +96,6 @@ public class Hue extends Driver {
 
 	@Override
 	protected void onQuit() {
-		Bus.postIfChanged(new HueConnectedEvent(this, false));
 		bridge = null;
 		if (phHueSDK != null) {
 			phHueSDK.disableAllHeartbeat();
@@ -116,18 +112,22 @@ public class Hue extends Driver {
 	}
 
 	/**
+	 * Returns the light with the specified ID.
 	 * 
 	 * @param id
-	 * @return
+	 *            the ID of the light to be returned
+	 * @return the light with the specified ID
 	 */
 	public HueLight light(int id) {
 		return light(String.valueOf(id));
 	}
 
 	/**
+	 * Returns the light with the specified ID.
 	 * 
 	 * @param id
-	 * @return
+	 *            the ID of the light to be returned
+	 * @return the light with the specified ID
 	 */
 	public HueLight light(String id) {
 		if (bridge == null) {

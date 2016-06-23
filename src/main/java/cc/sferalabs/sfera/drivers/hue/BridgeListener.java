@@ -26,10 +26,11 @@ public class BridgeListener implements PHSDKListener {
 
 	/**
 	 * 
-	 * @param id
+	 * @param driver
 	 * @param phHueSDK
+	 * @param configuration
 	 */
-	public BridgeListener(Hue driver, PHHueSDK phHueSDK,
+	BridgeListener(Hue driver, PHHueSDK phHueSDK,
 			Configuration configuration) {
 		this.logger = LogManager.getLogger(getClass().getName() + "."
 				+ driver.getId());

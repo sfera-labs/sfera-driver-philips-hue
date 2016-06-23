@@ -4,6 +4,14 @@ import com.philips.lighting.model.PHBridge;
 import com.philips.lighting.model.PHLight;
 import com.philips.lighting.model.PHLightState;
 
+/**
+ * Class representing a Hue light.
+ * 
+ * @author Giampiero Baggiani
+ *
+ * @version 1.0.0
+ *
+ */
 public class HueLight {
 
 	private final Hue driver;
@@ -16,7 +24,7 @@ public class HueLight {
 	 * @param bridge
 	 * @param lightId
 	 */
-	public HueLight(Hue driver, PHBridge bridge, String lightId) {
+	HueLight(Hue driver, PHBridge bridge, String lightId) {
 		this.driver = driver;
 		this.bridge = bridge;
 		this.lightId = lightId;
@@ -24,16 +32,19 @@ public class HueLight {
 
 	/**
 	 * 
-	 * @return
+	 * @return the light ID
 	 */
 	public String getId() {
 		return lightId;
 	}
 
 	/**
+	 * Sends an update request to set the light on or off.
 	 * 
 	 * @param on
-	 * @return
+	 *            {@code true} for on, {@code false} for off
+	 * @return {@code true} if the request is successful, {@code false}
+	 *         otherwise
 	 */
 	public boolean setOn(boolean on) {
 		PHLightState lightState = new PHLightState();
@@ -42,9 +53,13 @@ public class HueLight {
 	}
 
 	/**
+	 * Sends an update request to set the brightness of the light to the
+	 * specified value.
 	 * 
 	 * @param value
-	 * @return
+	 *            hue brightness to set (1-254)
+	 * @return {@code true} if the request is successful, {@code false}
+	 *         otherwise
 	 */
 	public boolean setBrightness(int value) {
 		PHLightState lightState = new PHLightState();
@@ -53,8 +68,7 @@ public class HueLight {
 	}
 
 	/**
-	 * 
-	 * @return
+	 * @return the light color
 	 */
 	public Color getColor() {
 		PHLight l = bridge.getResourceCache().getLights().get(lightId);
