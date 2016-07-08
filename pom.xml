@@ -3,17 +3,17 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>cc.sferalabs.sfera.drivers</groupId>
-	<artifactId>hue</artifactId>
+	<artifactId>philips-hue</artifactId>
 	<version>1.0.0</version>
 
-	<name>Hue</name>
+	<name>Philips Hue</name>
 	<description>Driver for the integration of Philips Hue lights</description>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<sfera-version>1.0.0</sfera-version>
 	</properties>
-	
+
 	<organization>
 		<name>Sfera Labs S.r.l.</name>
 		<url>http://www.sferalabs.cc</url>
@@ -33,7 +33,7 @@
 			<extension>
 				<groupId>org.apache.maven.wagon</groupId>
 				<artifactId>wagon-ssh</artifactId>
-				<version>2.3</version>
+				<version>2.10</version>
 			</extension>
 		</extensions>
 
